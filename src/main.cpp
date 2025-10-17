@@ -1,6 +1,7 @@
 #include "main.h"
 #include "lemlib/api.hpp"
 #include "config.hpp"
+#include "pros/misc.h"
 
 /**
  * A callback function for LLEMU's center button.
@@ -79,7 +80,11 @@ void autonomous() {}
  */
 void opcontrol() {
 
+	bool intakeForward = false;
+	bool intakeBackward = false;
+	bool intakeFrontBackward = false;
 	bool indexerState = LOW;
+	//bool tongueState = LOW;
 
 	while (true) {
 
@@ -90,16 +95,55 @@ void opcontrol() {
         chassis.arcade(vertical, horizontal, false, 0.45); // arcarde drive
 
 		// intake
-		if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) intake.move(300);
-		else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) intake.move(-300);
-		else intake.move(0);
+		//if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) intake.move(300);
+		//else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) intake.move(-300);
+		//else intake.move(0);
+		if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+			if (intakeForward) {
+				intakeFront.move(0);
+				intakeBack.move(0);
+				intakeFrontBackward = false;
+			} else {
+				intakeFront.move(300);
+				intakeBack.move(300);
+				intakeBackward = false;
+			}
+			intakeForward = !intakeForward;
+		} else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+			if (intakeBackward) {
+				intakeFront.move(0);
+				intakeBack.move(0);
+			} else {
+				intakeFront.move(-300);
+				intakeBack.move(-300);
+				intakeForward = false;
+				intakeFrontBackward = false;
+			}
+			intakeBackward = !intakeBackward;
+		}
+
+		if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_Y) && intakeForward) {
+			if (intakeFrontBackward) {
+				intakeFront.move(300);
+			} else {
+				intakeFront.move(-100);
+			}
+			intakeFrontBackward = !intakeFrontBackward;
+		}
 
 		// indexer
 		if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
 			indexerState = !indexerState;
 			indexerTop.set_value(indexerState);
-			indexerBottom.set_value(!indexerState);
+			//indexerBottom.set_value(!indexerState);
 		}
+
+		// tongue mech
+		//if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+		//	tongueState = !tongueState;
+		//	tongueMech.set_value(tongueState);
+		//}
+		
 
 		pros::delay(20); // Run for 20 ms then update
 	}

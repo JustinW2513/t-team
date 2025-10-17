@@ -3,6 +3,7 @@
 #include "main.h"
 
 #include "lemlib/api.hpp"
+#include "pros/motors.hpp"
 
 namespace config {
     // Upload info
@@ -20,9 +21,14 @@ namespace config {
     inline const std::initializer_list<int8_t> left_motor_ports = {-5, -19, 20};
 
     // Intake
-    inline const std::initializer_list<int8_t> intake_motor_ports = {-13, -14};
+    //inline const std::initializer_list<int8_t> intake_motor_ports = {-13, -14};
+    inline const int8_t intake_front_port = -13;
+    inline const int8_t intake_back_port = -14;
     inline const char indexer_top_ADI = 'A';
-    inline const char indexer_bottom_ADI = 'B';
+    //inline const char indexer_bottom_ADI = 'B';
+
+    // Tongue mech
+    //inline const char tongue_ADI = 'C';
 
     // Color sort
     //inline const char trapdoor_ADI = 'A';
@@ -68,14 +74,17 @@ inline pros::Controller controller(pros::E_CONTROLLER_MASTER);
 // Motor groups
 inline pros::MotorGroup leftMotorGroup(config::left_motor_ports, pros::MotorGearset::blue);
 inline pros::MotorGroup rightMotorGroup(config::right_motor_ports, pros::MotorGearset::blue);
-inline pros::MotorGroup intake(config::intake_motor_ports);
+//inline pros::MotorGroup intake(config::intake_motor_ports);
+inline pros::Motor intakeFront(config::intake_front_port);
+inline pros::Motor intakeBack(config::intake_back_port);
 
 // Drive train settings
 inline lemlib::Drivetrain driveTrain(&leftMotorGroup, &rightMotorGroup, config::dt_track_width, config::dt_wheel_diameter, config::dt_rpm, config::dt_horizontal_drift);
 
 // Pneumatics
 inline pros::adi::DigitalOut indexerTop(config::indexer_top_ADI);
-inline pros::adi::DigitalOut indexerBottom(config::indexer_bottom_ADI);
+//inline pros::adi::DigitalOut indexerBottom(config::indexer_bottom_ADI);
+//inline pros::adi::DigitalOut tongueMech(config::tongue_ADI);
 //inline ADIDigitalOut trapdoor(trapdoor_ADI);
 
 // Imu
