@@ -3,12 +3,11 @@
 #include "main.h"
 
 #include "lemlib/api.hpp"
-#include "pros/motors.hpp"
 
 namespace config {
     // Upload info
-    inline const std::string version = "Version 1.0.1";
-    inline const std::string upload_message = "pneumatics";
+    inline const std::string version = "Version 1.0.2";
+    inline const std::string upload_message = "intake controls";
 
     // Drivetrain
     inline const double dt_track_width = 13;
