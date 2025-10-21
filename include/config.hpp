@@ -5,10 +5,6 @@
 #include "lemlib/api.hpp"
 
 namespace config {
-    // Upload info
-    inline const std::string version = "Version 1.0.2";
-    inline const std::string upload_message = "intake controls";
-
     // Drivetrain
     inline const double dt_track_width = 13;
     inline const double dt_wheel_diameter = 3.25;
@@ -20,11 +16,8 @@ namespace config {
     inline const std::initializer_list<int8_t> left_motor_ports = {-5, -19, 20};
 
     // Intake
-    //inline const std::initializer_list<int8_t> intake_motor_ports = {-13, -14};
-    inline const int8_t intake_front_port = -13;
-    inline const int8_t intake_back_port = -14;
-    inline const char indexer_top_ADI = 'A';
-    //inline const char indexer_bottom_ADI = 'B';
+    inline const std::initializer_list<int8_t> intake_motor_ports = {-13, -14};
+    inline const char lift_ADI = 'A';
 
     // Tongue mech
     //inline const char tongue_ADI = 'C';
@@ -34,7 +27,7 @@ namespace config {
     //inline const int8_t color_sensor_port = 8;
 
     // Imu
-    inline const int8_t imu_port = 10;
+    inline const int8_t imu_port = 7;
     //inline const double imu_wheel_diameter = 2.75;
     //inline const double imu_wheel_distance = 0;
 
@@ -46,24 +39,24 @@ namespace config {
     inline const double lateral_kI = 0;
     inline const double lateral_kD = 3;
 
-    inline const double lateral_anti_windup = 3;
-    inline const double lateral_small_error_range = 1;
-    inline const double lateral_small_error_range_timeout = 100;
-    inline const double lateral_large_error_range = 3;
-    inline const double lateral_large_error_range_timeout = 500;
-    inline const double lateral_slew = 20;
+    inline const double lateral_anti_windup = 0;
+    inline const double lateral_small_error_range = 0;
+    inline const double lateral_small_error_range_timeout = 0;
+    inline const double lateral_large_error_range = 0;
+    inline const double lateral_large_error_range_timeout = 0;
+    inline const double lateral_slew = 0;
 
      // Angular PID
     inline const double angular_kP = 3;
-    inline const double angular_kI = 0.1;
+    inline const double angular_kI = 0;
     inline const double angular_kD = 18.0;
 
-    inline const double angular_anti_windup = 3;
-    inline const double angular_small_error_range = 1;
-    inline const double angular_small_error_range_timeout = 100;
-    inline const double angular_large_error_range = 3;
-    inline const double angular_large_error_range_timeout = 500;
-    inline const double angular_slew = 20;
+    inline const double angular_anti_windup = 0;
+    inline const double angular_small_error_range = 0;
+    inline const double angular_small_error_range_timeout = 0;
+    inline const double angular_large_error_range = 0;
+    inline const double angular_large_error_range_timeout = 0;
+    inline const double angular_slew = 0;
 
 } // namespace config
 
@@ -73,16 +66,13 @@ inline pros::Controller controller(pros::E_CONTROLLER_MASTER);
 // Motor groups
 inline pros::MotorGroup leftMotorGroup(config::left_motor_ports, pros::MotorGearset::blue);
 inline pros::MotorGroup rightMotorGroup(config::right_motor_ports, pros::MotorGearset::blue);
-//inline pros::MotorGroup intake(config::intake_motor_ports);
-inline pros::Motor intakeFront(config::intake_front_port);
-inline pros::Motor intakeBack(config::intake_back_port);
+inline pros::MotorGroup intake(config::intake_motor_ports);
 
 // Drive train settings
 inline lemlib::Drivetrain driveTrain(&leftMotorGroup, &rightMotorGroup, config::dt_track_width, config::dt_wheel_diameter, config::dt_rpm, config::dt_horizontal_drift);
 
 // Pneumatics
-inline pros::adi::DigitalOut indexerTop(config::indexer_top_ADI);
-//inline pros::adi::DigitalOut indexerBottom(config::indexer_bottom_ADI);
+inline pros::adi::DigitalOut lift(config::lift_ADI);
 //inline pros::adi::DigitalOut tongueMech(config::tongue_ADI);
 //inline ADIDigitalOut trapdoor(trapdoor_ADI);
 
@@ -110,7 +100,7 @@ inline lemlib::ExpoDriveCurve throttleCurve(3, // joystick deadband (out of 127)
 );
 inline lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband (out of 127)
                                         10, // minimum output for movement (out of 127)
-                                        1.016 // curve gain (a - value)
+                                        1.01 // curve gain (a - value)
 );
 
 // Chassis

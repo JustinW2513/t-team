@@ -3,22 +3,6 @@
 #include "config.hpp"
 
 /**
- * A callback function for LLEMU's center button.
- *
- * When this callback is fired, it will toggle line 2 of the LCD text between
- * "I was pressed!" and nothing.
- */
-void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
-	}
-}
-
-/**
  * Runs initialization code. This occurs as soon as the program is started.
  *
  * All other competition modes are blocked by initialize; it is recommended
@@ -26,11 +10,20 @@ void on_center_button() {
  */
 void initialize() {
 	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Test");
-	pros::lcd::set_text(2, config::version);
-	pros::lcd::set_text(3, config::upload_message);
 
-	pros::lcd::register_btn1_cb(on_center_button);
+	/*if(!pros::competition::is_connected()) {
+		pros::Task update_info([&](){
+            while (true) {
+				pros::lcd::print(0, "X: %f", chassis.getPose().x);
+				pros::lcd::print(1, "Y: %f", chassis.getPose().y);
+				pros::lcd::print(2, "Angle: %f", chassis.getPose().theta);
+                pros::delay(50);
+            } 
+		});
+	}
+	chassis.calibrate();
+	// set a known initial pose after calibration to avoid NaN from missing sensors
+	chassis.setPose(0, 0, 0);*/
 }
 
 /**
@@ -79,10 +72,7 @@ void autonomous() {}
  */
 void opcontrol() {
 
-	bool intakeForward = false;
-	bool intakeBackward = false;
-	bool intakeFrontBackward = false;
-	bool indexerState = LOW;
+	bool liftState = LOW;
 	//bool tongueState = LOW;
 
 	while (true) {
@@ -91,50 +81,19 @@ void opcontrol() {
 		int vertical = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y); // Y axis of the left joystick
         int horizontal = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X); // X axis of the right joystick
 
-        chassis.arcade(vertical, horizontal, false, 0.45); // arcarde drive
+        chassis.arcade(vertical, horizontal, false); // arcarde drive
 
 		// intake
-		//if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) intake.move(300);
-		//else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) intake.move(-300);
-		//else intake.move(0);
-		if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-			if (intakeForward) {
-				intakeFront.move(0);
-				intakeBack.move(0);
-				intakeFrontBackward = false;
-			} else {
-				intakeFront.move(300);
-				intakeBack.move(300);
-				intakeBackward = false;
-			}
-			intakeForward = !intakeForward;
-		} else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-			if (intakeBackward) {
-				intakeFront.move(0);
-				intakeBack.move(0);
-			} else {
-				intakeFront.move(-300);
-				intakeBack.move(-300);
-				intakeForward = false;
-				intakeFrontBackward = false;
-			}
-			intakeBackward = !intakeBackward;
-		}
-
-		if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_Y) && intakeForward) {
-			if (intakeFrontBackward) {
-				intakeFront.move(300);
-			} else {
-				intakeFront.move(-100);
-			}
-			intakeFrontBackward = !intakeFrontBackward;
-		}
+		if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) intake.move(-127);
+		else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) intake.move(127);
+		else intake.move(0);
 
 		// indexer
-		if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-			indexerState = !indexerState;
-			indexerTop.set_value(indexerState);
-			//indexerBottom.set_value(!indexerState);
+		if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
+			lift.set_value(liftState);
+		}
+		if (controller.get_digital_new_release(pros::E_CONTROLLER_DIGITAL_L2)) {
+			liftState = !liftState;
 		}
 
 		// tongue mech
@@ -142,7 +101,6 @@ void opcontrol() {
 		//	tongueState = !tongueState;
 		//	tongueMech.set_value(tongueState);
 		//}
-		
 
 		pros::delay(20); // Run for 20 ms then update
 	}
