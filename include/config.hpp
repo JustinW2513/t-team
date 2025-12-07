@@ -1,41 +1,35 @@
 #pragma once
 
-#include "main.h"
-
 #include "lemlib/api.hpp"
+#include "pros/abstract_motor.hpp"
 
 namespace config {
     // Drivetrain
-    inline const double dt_track_width = 13;
-    inline const double dt_wheel_diameter = 3.25;
+    inline const double dt_track_width = 27;
+    inline const double dt_wheel_diameter = lemlib::Omniwheel::NEW_325;
 
-    inline int dt_rpm = 360;
+    inline int dt_rpm = 450;
     inline uint8_t dt_horizontal_drift = 2;
 
-    inline const std::initializer_list<int8_t> right_motor_ports = {8, -9, 10};
-    inline const std::initializer_list<int8_t> left_motor_ports = {-5, -19, 20};
+    inline const std::initializer_list<int8_t> right_motor_ports = {13, 12, 16};
+    inline const std::initializer_list<int8_t> left_motor_ports = {-20, -14, -19};
 
     // Intake
-    inline const std::initializer_list<int8_t> intake_motor_ports = {-13, -14};
-    inline const char lift_ADI = 'A';
+    inline const int8_t intake_port = 18;
+    inline const int8_t indexer_port = -15;
+    inline const char tongue_ADI = 'A';
+    inline const char wing_ADI = 'B';
+    inline const char middle_goal_top_ADI = 'C';
+    inline const char middle_goal_bottom_ADI = 'D';
 
-    // Tongue mech
-    //inline const char tongue_ADI = 'C';
-
-    // Color sort
-    //inline const char trapdoor_ADI = 'A';
-    //inline const int8_t color_sensor_port = 8;
-
-    // Imu
-    inline const int8_t imu_port = 7;
-    //inline const double imu_wheel_diameter = 2.75;
-    //inline const double imu_wheel_distance = 0;
-
-    // Encoders
-    //inline const char verticalEncoder_port = 'C';
+    // Odom
+    inline const int8_t imu_port = 3;
+    inline const int8_t vertical_encoder_port = 17;
+    inline const double vertical_wheel_diameter = lemlib::Omniwheel::NEW_2;
+    inline const double vertical_wheel_distance = 0;
 
     // Lateral PID
-    inline const double lateral_kP = 10;
+    inline const double lateral_kP = 7.5;
     inline const double lateral_kI = 0;
     inline const double lateral_kD = 3;
 
@@ -47,9 +41,9 @@ namespace config {
     inline const double lateral_slew = 0;
 
      // Angular PID
-    inline const double angular_kP = 3;
+    inline const double angular_kP = 1.65;
     inline const double angular_kI = 0;
-    inline const double angular_kD = 18.0;
+    inline const double angular_kD = 10;
 
     inline const double angular_anti_windup = 0;
     inline const double angular_small_error_range = 0;
@@ -63,30 +57,30 @@ namespace config {
 // Controller
 inline pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
-// Motor groups
+// Motors
 inline pros::MotorGroup leftMotorGroup(config::left_motor_ports, pros::MotorGearset::blue);
 inline pros::MotorGroup rightMotorGroup(config::right_motor_ports, pros::MotorGearset::blue);
-inline pros::MotorGroup intake(config::intake_motor_ports);
+inline pros::Motor intake(config::intake_port, pros::MotorGearset::blue);
+inline pros::Motor indexer(config::indexer_port, pros::MotorGearset::blue);
 
 // Drive train settings
 inline lemlib::Drivetrain driveTrain(&leftMotorGroup, &rightMotorGroup, config::dt_track_width, config::dt_wheel_diameter, config::dt_rpm, config::dt_horizontal_drift);
 
 // Pneumatics
-inline pros::adi::DigitalOut lift(config::lift_ADI);
-//inline pros::adi::DigitalOut tongueMech(config::tongue_ADI);
-//inline ADIDigitalOut trapdoor(trapdoor_ADI);
+inline pros::adi::Pneumatics tongueMech(config::tongue_ADI, false);
+inline pros::adi::Pneumatics wing(config::wing_ADI, false);
+inline pros::adi::Pneumatics middleGoalIndexerTop(config::middle_goal_top_ADI, false);
+inline pros::adi::Pneumatics middleGoalIndexerBottom(config::middle_goal_bottom_ADI, true);
 
 // Imu
 inline pros::Imu imu(config::imu_port);
 
-// Encoders
-//inline Encoder verticalEncoder(verticalEncoder_port, true); // true --> reversed
-
 // Tracking Wheels
-//inline TrackingWheel verticalTrackingWheel(&verticalEncoder, imu_wheel_diameter, imu_wheel_distance);
+inline pros::Rotation verticalEncoder(config::vertical_encoder_port);
+inline lemlib::TrackingWheel vertical(&verticalEncoder, config::vertical_wheel_diameter, config::vertical_wheel_distance);
 
 // Sensors
-inline lemlib::OdomSensors odom(nullptr, nullptr, nullptr, nullptr, &imu);
+inline lemlib::OdomSensors odom(&vertical, nullptr, nullptr, nullptr, &imu);
 //inline pros::Optical color_sensor(color_sensor_port);
 
 // PID

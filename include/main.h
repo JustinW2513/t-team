@@ -35,6 +35,10 @@
 #define PROS_USE_LITERALS
 
 #include "api.h"
+#include "config.hpp"
+#include "lemlib/api.hpp"
+#include "auton.hpp"
+
 
 /**
  * You should add more #includes here
