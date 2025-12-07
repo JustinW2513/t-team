@@ -1,7 +1,6 @@
 #pragma once
 
 #include "lemlib/api.hpp"
-#include "pros/abstract_motor.hpp"
 
 namespace config {
     // Drivetrain
