@@ -17,20 +17,20 @@ namespace config {
     inline const int8_t intake_port = 18;
     inline const int8_t indexer_port = -15;
     inline const char tongue_ADI = 'A';
-    inline const char wing_ADI = 'B';
-    inline const char middle_goal_top_ADI = 'C';
-    inline const char middle_goal_bottom_ADI = 'D';
+    inline const char wing_ADI = 'C';
+    inline const char middle_goal_top_ADI = 'D';
+    inline const char middle_goal_bottom_ADI = 'B';
 
     // Odom
-    inline const int8_t imu_port = 3;
+    inline const int8_t imu_port = 1;
     inline const int8_t vertical_encoder_port = 17;
     inline const double vertical_wheel_diameter = lemlib::Omniwheel::NEW_2;
     inline const double vertical_wheel_distance = 0;
 
     // Lateral PID
-    inline const double lateral_kP = 7.5;
+    inline const double lateral_kP = 4.7;
     inline const double lateral_kI = 0;
-    inline const double lateral_kD = 3;
+    inline const double lateral_kD = 1;
 
     inline const double lateral_anti_windup = 0;
     inline const double lateral_small_error_range = 0;
@@ -40,9 +40,9 @@ namespace config {
     inline const double lateral_slew = 0;
 
      // Angular PID
-    inline const double angular_kP = 1.65;
+    inline const double angular_kP = 1.87;
     inline const double angular_kI = 0;
-    inline const double angular_kD = 10;
+    inline const double angular_kD = 13;
 
     inline const double angular_anti_windup = 0;
     inline const double angular_small_error_range = 0;

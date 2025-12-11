@@ -1,5 +1,4 @@
 #include "main.h"
-#include "auton.hpp"
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -62,7 +61,7 @@ void autonomous() {
 	//chassis.waitUntilDone();
 	//chassis.turnToHeading(0, 1000);
     //chassis.moveToPoint(0, 20, 100000);
-	//auton();
+	auton();
 }
 
 /**
@@ -84,6 +83,7 @@ void opcontrol() {
 	// l2 toggle tongue mech
 	// a toogle intake (slow)
 	// up toggle wing
+	// y toggles intake method
 
 	bool intakeState = false; // intake toggle mode or not toggle, false = no toggle
 	bool intakeForward = false;
@@ -154,10 +154,10 @@ void opcontrol() {
 
 		// middle goal
 		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
-			//middleGoalIndexerTop.toggle();
-			//middleGoalIndexerBottom.toggle();
-			intake.move((middleGoal)? 0 : 127);
-			middleGoal = !middleGoal;
+			middleGoalIndexerTop.toggle();
+			middleGoalIndexerBottom.toggle();
+			//intake.move((middleGoal)? 0 : 127);
+			//middleGoal = !middleGoal;
 		}
 
 		/*if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {
