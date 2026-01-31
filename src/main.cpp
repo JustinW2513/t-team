@@ -1,4 +1,6 @@
 #include "main.h"
+#include "config.hpp"
+#include "pros/misc.h"
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -61,7 +63,7 @@ void autonomous() {
 	//chassis.waitUntilDone();
 	//chassis.turnToHeading(0, 1000);
     //chassis.moveToPoint(0, 20, 100000);
-	auton();
+	//auton();
 }
 
 /**
@@ -89,25 +91,23 @@ void opcontrol() {
 	bool intakeForward = false;
 	bool intakeBackward = false;
 
-	bool indexerState = false; // false = not running
-	bool middleGoal = false; // false = not running
+	int intakeVoltage = 127;
+	int middleIntakeSpeed = 350;
 
 	while (true) {
 
 		// drivetrain
 		int vertical = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y); // Y axis of the left joystick
         int horizontal = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X); // X axis of the right joystick
-		chassis.arcade(vertical, horizontal, false); // arcarde drive
+		chassis.arcade(vertical, horizontal, false, 0.75); // arcarde drive
 
 		// intake
 		if (intakeState) {
 			if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {
 				if (intakeForward) {
 					intake.move(0);
-					indexer.move(0);
 				} else {
-					intake.move(127);
-					if(indexerState) indexer.move(127);
+					intake.move(intakeVoltage);
 					intakeBackward = false;
 				}
 				intakeForward = !intakeForward;
@@ -115,21 +115,15 @@ void opcontrol() {
 				if (intakeBackward) {
 					intake.move(0);
 				} else {
-					intake.move(-127);
-					indexer.move(0);
+					intake.move(-intakeVoltage);
 					intakeForward = false;
 				}
 				intakeBackward = !intakeBackward;
 			}
 		} else {
-			if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-				intake.move(127);
-				if(indexerState) indexer.move(127);
-			} else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) intake.move(-127);
-			else {
-				intake.move(0);
-				indexer.move(0);
-			}
+			if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) intake.move(intakeVoltage);
+			else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) intake.move(-intakeVoltage);
+			else intake.move(0);
 		}
 
 		// toggle intake input method
@@ -137,9 +131,10 @@ void opcontrol() {
 			intakeState = !intakeState;
 		}
 
-		// indexer
-		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
-			indexerState = !indexerState;
+		// toggle intake speed
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
+			if (intakeVoltage == 127) intakeVoltage = middleIntakeSpeed * 127 / 600;
+			else intakeVoltage = 127;
 		}
 
 		// tongue mech
@@ -148,16 +143,17 @@ void opcontrol() {
 		}
 
 		// wing
-		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
 			wing.toggle();
 		}
 
-		// middle goal
-		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
-			middleGoalIndexerTop.toggle();
-			middleGoalIndexerBottom.toggle();
-			//intake.move((middleGoal)? 0 : 127);
-			//middleGoal = !middleGoal;
+		// triple state
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
+			tripleStateMech.setState(TripleStateMechStates::Middle);
+		} else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
+			tripleStateMech.setState(TripleStateMechStates::Index);
+		} else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+			tripleStateMech.setState(TripleStateMechStates::High);
 		}
 
 		/*if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {

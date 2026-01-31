@@ -2,7 +2,7 @@
 
 #include "config.hpp"
 
-void auton() {
+/*void auton() {
     chassis.setPose(-46.7, -15.825, 0);
     chassis.moveToPoint(-46.7, -47, 1000, {.forwards=false, .maxSpeed=80});
     chassis.turnToHeading(90, 600);
@@ -74,4 +74,4 @@ void auton() {
     while(chassis.isInMotion()) { pros::delay(20); }
     intake.move(127);
     indexer.move(127);
-}
+}*/
